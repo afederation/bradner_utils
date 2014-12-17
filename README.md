@@ -122,3 +122,7 @@ def gffToFasta(species,directory,gff,UCSC = True)
 - converts a gff to a fasta
 
 def revComp(seq,rev = True, RNA=False)
+
+###9 sortCoordsBED.py
+
+- a helper function to sort the start and end coordinates in a BED file
