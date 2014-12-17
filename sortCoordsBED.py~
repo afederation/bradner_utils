@@ -1,0 +1,7 @@
+import utils
+from sys import argv
+
+
+filename = argv[1]
+
+bedfile = utils.parseTable(filename, '\t')
