@@ -5,6 +5,7 @@ Dependencies
 -----------------
 
 samtools (http://samtools.sourceforge.net/)
+
 bamliquidator (https://github.com/BradnerLab/pipeline/wiki/bamliquidator)
 
 Functions
