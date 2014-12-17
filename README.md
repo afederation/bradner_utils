@@ -12,14 +12,18 @@ Functions
 -----------------
 
 
-#1. Input/Output and file handling functions
+1. Input/Output and file handling functions
 
 def open(file,mode='r')
 - replaces open with a version that can handle gzipped files
-def parseTable(fn, sep, header = False,excel = False): <- opens standard delimited files
-def unParseTable(table, output, sep): <- writes standard delimited files, opposite of parseTable
-def gffToBed(gff,output= ''): <- converts standard UCSC gff format files to UCSC bed format files
-def formatFolder(folderName,create=False): <- checks for the presence of any folder and makes it if create =True
+def parseTable(fn, sep, header = False, excel = False): 
+- opens standard delimited files
+def unParseTable(table, output, sep): 
+- writes standard delimited files, opposite of parseTable
+def gffToBed(gff,output= ''): 
+- converts standard UCSC gff format files to UCSC bed format files
+formatFolder(folderName,create=False): 
+- checks for the presence of any folder and makes it if create =True
 
 2. Gene annotation functions
 def makeStartDict(annotFile,geneList = []): <- takes a standard UCSC refseq table and creates a dictionary keyed by refseq ID with in\
