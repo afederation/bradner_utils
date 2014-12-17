@@ -1,14 +1,11 @@
 #!/usr/bin/python
 #SET OF GENERAL UTILITY FUNCTIONS FOR SEQ DATA
-#last modified 131031
-
-#please edit this to the location of the samtools program
-samtoolsString ='samtools'
+#last modified 141217
 
 '''
 The MIT License (MIT)
 
-Copyright (c) 2013 Charles Lin
+Copyright (c) 2015 Alexander Federation
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +27,7 @@ THE SOFTWARE.
 '''
 
 
-#Locus, LocusCollection, and Gene classes were generously provided by Graham Ruby
+#Locus, LocusCollection, and Gene classes were generously provided by Graham Ruby and Charles Lin
 #Additional functions are found from online sources and are noted in the comments
 
 
@@ -575,7 +572,7 @@ class Locus:
 
 
 class LocusCollection:
-    def __init__(self,loci,windowSize):
+    def __init__(self,loci,windowSize=50):
         ### top-level keys are chr, then strand, no space
         self.__chrToCoordToLoci = dict()
         self.__loci = dict()
