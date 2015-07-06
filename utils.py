@@ -613,6 +613,14 @@ class LocusCollection:
 
     def getWindowSize(self): return self.__winSize
     def getLoci(self): return self.__loci.keys()
+
+    def getSize(self):
+           size = 0
+           for locus in self.__loci:
+                  newsize = int(locus.end())-int(locus.start())
+                  size += newsize
+           return size
+
     def getChrList(self):
         # i need to remove the strand info from the chromosome keys and make
         # them non-redundant.
@@ -726,7 +734,7 @@ class LocusCollection:
                 continue
         return stitchedCollection
 
-
+    
 
 #==================================================================
 #========================GENE INSTANCE============================
@@ -883,7 +891,13 @@ def locusCollectionToGFF(locusCollection):
 
 
 
+def bedToLocusCollection(bedfile):
 
+    table = parseTable(bedfile, '\t')
+    loci = [Locus(x[0], x[1], x[2], '.') for x in table]
+    collection = LocusCollection(loci, 50)
+
+    return collection
 
 def gffToLocusCollection(gff,window =500):
 
@@ -971,8 +985,9 @@ class Bam:
     def __init__(self,bamFile):
         self._bam = bamFile
 
+
     def getTotalReads(self,readType = 'mapped'):
-        command = '%s flagstat %s' % (samtoolsString,self._bam)
+        command = 'samtools flagstat %s' % (self._bam)
         stats = subprocess.Popen(command,stdin = subprocess.PIPE,stderr = subprocess.PIPE,stdout = subprocess.PIPE,shell = True)
         statLines = stats.stdout.readlines()
         stats.stdout.close()
@@ -997,7 +1012,7 @@ class Bam:
         '''
         locusLine = locus.chr()+':'+str(locus.start())+'-'+str(locus.end())
         
-        command = '%s view %s %s' % (samtoolsString,self._bam,locusLine)
+        command = 'samtools view %s %s' % (self._bam,locusLine)
         if printCommand:
             print(command)
         getReads = subprocess.Popen(command,stdin = subprocess.PIPE,stderr = subprocess.PIPE,stdout = subprocess.PIPE,shell = True)
@@ -1113,7 +1128,20 @@ class Bam:
         reads = self.getRawReads(locus,sense,unique,includeJxnReads)
 
         return len(reads)
-                                    
+         
+
+    def liquidateLocus(self,locus,sense='.'):
+
+           bamliquidatorCmd = 'bamliquidator %s %s %s %s %s 1 200' % (self._bam, locus.chr(),
+                                                                     str(locus.start()), str(locus.end()),
+                                                                     sense)
+
+           bamliquidatorOut = subprocess.Popen(bamliquidatorCmd, stdout = subprocess.PIPE, shell=True)
+           score = bamliquidatorOut.communicate()[0]
+
+           return score
+
+
 
 
 #==================================================================
@@ -1583,3 +1611,41 @@ def bedToLocusList(bedTable):
 
        output = [Locus(x[0], x[1], x[2], '.') for x in bedTable]
        return output
+
+def makeTSScollection(startDict):
+
+       startDict = utils.makeStartDict(annotationFile)
+       tssLoci = []
+       for gene in startDict:
+              chrom = startDict[gene]['chr']
+              start = int(startDict[gene]['start'])
+              stop = int(startDict[gene]['start']) + 1
+              
+              tssLoci.append(utils.Locus(chrom, start, stop, '.'))
+       tssCollection = utils.LocusCollection(tssLoci,50)
+       return tssCollection
+
+def closestGene(locus, tssCollection):
+       
+       overlappingLoci = tssCollection.getOverlap(locus, 'both')
+       overlappingGenes =[]
+       for overlapLocus in overlappingLoci:
+              overlappingGenes.append(overlapLocus.ID())
+       if overlappingGenes:
+              return overlappingGenes[0]
+
+       distalLoci = tssCollection.getOverlap(utils.makeSearchLocus(locus,1000000,1000000),'both')
+       distalGenes =[]
+       for distalLocus in distalLoci:
+              distalGenes.append(distalLocus.ID())
+
+       locusCenter = (int(locus.start()) + int(locus.end())) / 2
+       distList = [abs(locusCenter - startDict[geneID]['start'][0])
+                   for geneID in distalGenes]
+       if distList:
+              closestGene = distalGenes[distList.index(min(distList))]
+
+       else:
+              closestGene = ''
+
+       return closestGene
